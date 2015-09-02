@@ -7,7 +7,8 @@ Installation
 
 ######Add this line to your application's Gemfile:
 ```ruby
-gem 'unionpay_app', '~> 0.9.0'
+gem 'unionpay_app', '~> 0.10.0', github: 'golfMaster/unionpay_app'
+
 ```
 ######or development version
 ```ruby
