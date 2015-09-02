@@ -43,24 +43,21 @@ module UnionpayApp
 
     #银联支付验签
     def self.verify params
-    	if get_public_key_by_cert_id params['certId']
-        public_key = get_public_key_by_cert_id params['certId']
-        signature_str = params['signature']
-        p = params.reject{|k, v| k == "signature"}.sort.map{|key, value| "#{key}=#{value}" }.join('&')
-        signature = Base64.decode64(signature_str)
-        data = Digest::SHA1.hexdigest(p)
-        key = OpenSSL::PKey::RSA.new public_key
-        digest = OpenSSL::Digest::SHA256.new
-        key.verify digest, signature, data
-    	else
-        false
-    	end
+      public_key = get_public_key_by_cert_id params['certId']
+      return false if public_key.nil?
+
+      signature_str = params['signature']
+      p = params.reject{|k, v| k == "signature"}.sort.map{|key, value| "#{key}=#{value}" }.join('&')
+      signature = Base64.decode64(signature_str)
+      data = Digest::SHA1.hexdigest(p)
+      digest = OpenSSL::Digest::SHA1.new
+      public_key.verify digest, signature, data
     end
 
     # 银联支付 根据证书id返回公钥
     def self.get_public_key_by_cert_id cert_id
     	certificate = OpenSSL::X509::Certificate.new(UnionpayApp.cer) #读取cer文件
-    	certificate.serial.to_s == cert_id ? certificate.public_key.to_s : nil #php 返回的直接是cer文件 UnionpayApp.cer
+    	certificate.serial.to_s == cert_id ? certificate.public_key : nil #php 返回的直接是cer文件 UnionpayApp.cer
     end
 
     def self.query order_id, txnTime
