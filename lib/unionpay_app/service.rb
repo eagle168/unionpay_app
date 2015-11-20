@@ -7,7 +7,7 @@ require 'typhoeus'
 module UnionpayApp
   module Service
     #银联支付签名
-    def self.sign txtAmt, orderId
+    def self.sign txtAmt, orderId, expiredAt=nil
       union_params = {
         :version => "5.0.0",
         :encoding => "utf-8",
@@ -26,6 +26,9 @@ module UnionpayApp
         :currencyCode => '156',
         :signMethod => '01',
       }
+
+      union_params[:payTimeout] = expiredAt.strftime("%Y%m%d%H%M%S") unless expiredAt.nil?
+
       data = Digest::SHA1.hexdigest(union_params.sort.map{|key, value| "#{key}=#{value}" }.join('&'))
       sign = Base64.encode64(OpenSSL::PKey::RSA.new(UnionpayApp.private_key).sign('sha1', data.force_encoding("utf-8"))).gsub("\n", "")
       {time: union_params[:txnTime], sign: union_params.merge(signature: sign)}
