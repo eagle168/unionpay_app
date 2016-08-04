@@ -7,7 +7,7 @@ require 'typhoeus'
 module UnionpayApp
   module Service
     #银联支付签名
-    def self.sign txtAmt, orderId, expiredAt=nil
+    def self.sign txtAmt, orderId, expiredAt=nil, createAt=nil
       union_params = {
         :version => "5.0.0",
         :encoding => "utf-8",
@@ -21,7 +21,7 @@ module UnionpayApp
         :accessType => "0",
         :merId      => UnionpayApp.mer_id,
         :orderId => orderId,  #商户订单号
-        :txnTime => Time.now.strftime("%Y%m%d%H%M%S"),  #订单发送时间
+        :txnTime => (createAt||Time.now).strftime("%Y%m%d%H%M%S"),  #订单发送时间
         :txnAmt  => txtAmt, #以分为单位
         :currencyCode => '156',
         :signMethod => '01',
